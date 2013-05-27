@@ -7,17 +7,23 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
-public class MenuActivity extends Activity {
+public class MenuActivity extends Activity implements View.OnTouchListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_menu);
 
-		TargetorApplication.changeTypeface(this, R.id.button_singleplayer,
-				R.id.button_multiplayer);
+		TargetorApplication.changeTypeface(this, R.id.text_singleplayer,
+				R.id.text_multiplayer);
+
+		// ontouchlistener for changing menu button targets
+		findViewById(R.id.layout_singleplayer).setOnTouchListener(this);
+		findViewById(R.id.layout_multiplayer).setOnTouchListener(this);
 	}
 
 	public void startSingleplayer(View v) {
@@ -85,5 +91,38 @@ public class MenuActivity extends Activity {
 	 */
 	public void info(View v) {
 		startActivity(new Intent(this, InfoActivity.class));
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+
+		// handle changing images single,multi player
+		switch (v.getId()) {
+		case R.id.layout_singleplayer:
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_UP:
+				((ImageView) findViewById(R.id.image_singleplayer))
+						.setImageResource(R.drawable.target_normal);
+				break;
+			case MotionEvent.ACTION_DOWN:
+				((ImageView) findViewById(R.id.image_singleplayer))
+						.setImageResource(R.drawable.target_normal_broken);
+				break;
+			}
+			break;
+		case R.id.layout_multiplayer:
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_UP:
+				((ImageView) findViewById(R.id.image_multiplayer))
+						.setImageResource(R.drawable.target_bluetooth);
+				break;
+			case MotionEvent.ACTION_DOWN:
+				((ImageView) findViewById(R.id.image_multiplayer))
+						.setImageResource(R.drawable.target_bluetooth_broken);
+				break;
+			}
+			break;
+		}
+		return false;
 	}
 }

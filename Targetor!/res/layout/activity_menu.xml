@@ -1,53 +1,37 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_menu"
     tools:context=".MenuActivity" >
 
-    <ImageView
-        android:id="@+id/quit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:onClick="quit"
-        android:src="@drawable/quit" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="4"
+        android:orientation="vertical" >
 
-    <ToggleButton
-        android:id="@+id/sound"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/sound_toggle"
-        android:textOff=""
-        android:textOn="" />
+        <ImageView
+            android:id="@+id/quit"
+            style="@style/icon"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:onClick="quit"
+            android:src="@drawable/quit" />
 
-    <ImageView
-        android:id="@+id/share"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:onClick="share"
-        android:src="@drawable/share" />
-
-    <ImageView
-        android:id="@+id/info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:onClick="info"
-        android:src="@drawable/info" />
+        <ImageView
+            android:id="@+id/info"
+            style="@style/icon"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:onClick="info"
+            android:src="@drawable/info" />
+    </RelativeLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/sound"
-        android:layout_toRightOf="@+id/quit"
+        android:layout_weight="1"
         android:orientation="vertical" >
 
         <ImageView
@@ -57,25 +41,59 @@
             android:layout_weight="0.8"
             android:src="@drawable/menu_logo" />
 
-        <Button
-            android:id="@+id/button_singleplayer"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/layout_singleplayer"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:onClick="startSingleplayer"
-            android:text="@string/button_singleplayer"
-            android:textSize="48dp" />
+            android:clickable="true"
+            android:onClick="startSingleplayer" >
 
-        <Button
-            android:id="@+id/button_multiplayer"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/image_singleplayer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:src="@drawable/target_normal" />
+
+            <TextView
+                android:id="@+id/text_singleplayer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="left|center_vertical"
+                android:layout_weight="1"
+                android:text="@string/singleplayer"
+                android:textColor="@android:color/black"
+                android:textSize="48dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_multiplayer"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:onClick="startMultiplayer"
-            android:text="@string/button_multiplayer"
-            android:textSize="48dp" />
+            android:clickable="true"
+            android:onClick="startMultiplayer" >
+ 
+            <ImageView
+                android:id="@+id/image_multiplayer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:src="@drawable/target_bluetooth" />
+
+            <TextView
+                android:id="@+id/text_multiplayer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="left|center_vertical"
+                android:layout_weight="1"
+                android:text="@string/multiplayer"
+                android:textColor="@android:color/black"
+                android:textSize="48dp" />
+        </LinearLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -84,4 +102,27 @@
         </FrameLayout>
     </LinearLayout>
 
-</RelativeLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="4" >
+
+        <ToggleButton
+            android:id="@+id/sound"
+            style="@style/icon"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/sound_toggle"
+            android:textOff=""
+            android:textOn="" />
+
+        <ImageView
+            android:id="@+id/share"
+            style="@style/icon"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:onClick="share"
+            android:src="@drawable/share" />
+    </RelativeLayout>
+
+</LinearLayout>
