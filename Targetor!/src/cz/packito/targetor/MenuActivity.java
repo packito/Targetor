@@ -27,7 +27,9 @@ public class MenuActivity extends Activity implements View.OnTouchListener {
 	}
 
 	public void startSingleplayer(View v) {
-		// TODO start singleplayer game
+		Intent intent= new Intent(this, GameActivity.class);
+		intent.putExtra(TargetorApplication.TARGETOR_EXTRA_MULTIPLAYER, false);
+		startActivity(intent);
 	}
 
 	public void startMultiplayer(View v) {
