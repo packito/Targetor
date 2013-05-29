@@ -9,9 +9,12 @@ import android.os.PowerManager.WakeLock;
 import android.view.Display;
 import android.view.View;
 import android.widget.Checkable;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
-public class GameActivity extends Activity {
+public class GameActivity extends Activity implements OnCheckedChangeListener {
 
 	private static final String TAG = "GameActivity";
 	private GameView gameView;
@@ -25,6 +28,7 @@ public class GameActivity extends Activity {
 	private boolean screenRatioNegotiated = false;
 
 	private int displayWidth, displayHeight;
+	private ToggleButton soundToggle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +40,10 @@ public class GameActivity extends Activity {
 		pauseScreen = findViewById(R.id.pause_screen);
 
 		// load the precerences
-		preferences = getPreferences(Context.MODE_PRIVATE);
-		Checkable soundToggle = (Checkable) findViewById(R.id.pause_sound_toggle);
-		soundToggle.setChecked(preferences.getBoolean("sound", true));
+		preferences = getSharedPreferences(TargetorApplication.SHARED_PREFERENCES, MODE_PRIVATE);
+		soundToggle = (ToggleButton) findViewById(R.id.pause_sound);
+		soundToggle.setChecked(preferences.getBoolean(TargetorApplication.TARGETOR_KEY_SOUND_ON, true));
+		soundToggle.setOnCheckedChangeListener(this);
 
 		multiplayer = getIntent().getBooleanExtra(
 				TargetorApplication.TARGETOR_EXTRA_MULTIPLAYER, false);
@@ -130,20 +135,7 @@ public class GameActivity extends Activity {
 		finish();
 	}
 
-	/**
-	 * Called by toggling the sound on pause screen. Writes to
-	 * SharedPreferences.
-	 * 
-	 * @param v
-	 *            the toggle ({@linkplain Checkable})
-	 */
 
-	public void toggleSound(View v) {
-		boolean soundOn = ((Checkable) v).isChecked();
-		SharedPreferences.Editor editor = preferences.edit();
-		editor.putBoolean(TargetorApplication.TARGETOR_KEY_SOUND_ON, soundOn);
-		editor.commit();
-	}
 
 	/**
 	 * show a {@linkplain Toast}, safe to call from another thread
@@ -178,5 +170,22 @@ public class GameActivity extends Activity {
 						.show();
 			}
 		});
+	}
+
+	/**
+	 * Called by toggling the sound on pause screen. Writes to
+	 * SharedPreferences.
+	 * 
+	 */
+
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		switch (buttonView.getId()) {
+		case R.id.pause_sound:
+				SharedPreferences.Editor editor = preferences.edit();
+				editor.putBoolean(TargetorApplication.TARGETOR_KEY_SOUND_ON, isChecked);
+				editor.commit();
+			break;
+		}
 	}
 }

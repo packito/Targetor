@@ -1,5 +1,6 @@
 package cz.packito.targetor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,11 +74,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		// load the sounds
 		music = MediaPlayer.create(activity, R.raw.music_game);
 		music.setLooping(true);
+		try {
+			music.prepare();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		sounds = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
 		SOUND_MISS = sounds.load(activity, R.raw.miss, 1);
 		SOUND_TARGET_NORMAL = sounds
 				.load(activity, R.raw.target_normal_shot, 1);
-
 	}
 
 	/**

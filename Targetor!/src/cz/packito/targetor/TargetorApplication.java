@@ -9,6 +9,7 @@ public class TargetorApplication extends Application {
 
 	public static final String TARGETOR_EXTRA_MULTIPLAYER = "multiplayer";
 	public static final String TARGETOR_KEY_SOUND_ON = "sound_on";
+	public static final String SHARED_PREFERENCES = "TargetorPreferences";
 
 	/**
 	 * Change typeface to my cool downloaded font

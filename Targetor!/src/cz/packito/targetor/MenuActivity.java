@@ -1,33 +1,98 @@
 package cz.packito.targetor;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Checkable;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
+import android.widget.ToggleButton;
 
-public class MenuActivity extends Activity implements View.OnTouchListener {
+/**
+ * The activity the user sees after launching Targetor!
+ * 
+ * @author packito
+ * 
+ */
+
+public class MenuActivity extends Activity implements View.OnTouchListener,
+		OnCheckedChangeListener {
+
+	private SharedPreferences preferences;
+	private MediaPlayer music;
+	private boolean soundOn;
+	private ToggleButton soundToggle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_menu);
 
+		preferences = getSharedPreferences(
+				TargetorApplication.SHARED_PREFERENCES, MODE_PRIVATE);
 		TargetorApplication.changeTypeface(this, R.id.text_singleplayer,
 				R.id.text_multiplayer);
 
 		// ontouchlistener for changing menu button targets
 		findViewById(R.id.layout_singleplayer).setOnTouchListener(this);
 		findViewById(R.id.layout_multiplayer).setOnTouchListener(this);
+
+		// register sound preference changes
+		soundToggle = (ToggleButton) findViewById(R.id.menu_sound);
+		soundToggle.setOnCheckedChangeListener(this);
+
+		music = MediaPlayer.create(this, R.raw.music_menu);
+		music.setLooping(true);
+		try {
+			music.prepare();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	// TODO fix playback, coontinue in other menu activities
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		soundOn = preferences.getBoolean(
+				TargetorApplication.TARGETOR_KEY_SOUND_ON, true);
+		soundToggle.setChecked(soundOn);
+		if (soundOn) {
+			music.start();
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		if (music.isPlaying()) {
+			music.pause();
+		}
+		super.onPause();
+	}
+
+	// TODO end
+
+	@Override
+	protected void onDestroy() {
+		music.release();
+		super.onDestroy();
 	}
 
 	public void startSingleplayer(View v) {
-		Intent intent= new Intent(this, GameActivity.class);
+		Intent intent = new Intent(this, GameActivity.class);
 		intent.putExtra(TargetorApplication.TARGETOR_EXTRA_MULTIPLAYER, false);
 		startActivity(intent);
 	}
@@ -95,6 +160,28 @@ public class MenuActivity extends Activity implements View.OnTouchListener {
 		startActivity(new Intent(this, InfoActivity.class));
 	}
 
+	/**
+	 * Called by toggling the sound in menu. Writes to SharedPreferences and
+	 * plays/stops music playback
+	 */
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		switch (buttonView.getId()) {
+		case R.id.menu_sound:
+			soundOn = isChecked;
+			SharedPreferences.Editor editor = preferences.edit();
+			editor.putBoolean(TargetorApplication.TARGETOR_KEY_SOUND_ON,
+					soundOn);
+			editor.commit();
+			if (soundOn) {
+				music.start();
+			} else if (music.isPlaying()) {
+				music.pause();
+			}
+			break;
+		}
+	}
+
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
@@ -127,4 +214,5 @@ public class MenuActivity extends Activity implements View.OnTouchListener {
 		}
 		return false;
 	}
+
 }
