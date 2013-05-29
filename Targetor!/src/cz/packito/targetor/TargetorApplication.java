@@ -2,6 +2,7 @@ package cz.packito.targetor;
 
 import android.app.Activity;
 import android.app.Application;
+import android.bluetooth.BluetoothSocket;
 import android.graphics.Typeface;
 import android.widget.TextView;
 
@@ -10,6 +11,7 @@ public class TargetorApplication extends Application {
 	public static final String TARGETOR_EXTRA_MULTIPLAYER = "multiplayer";
 	public static final String TARGETOR_KEY_SOUND_ON = "sound_on";
 	public static final String SHARED_PREFERENCES = "TargetorPreferences";
+	public BluetoothSocket btSocket;
 
 	/**
 	 * Change typeface to my cool downloaded font
@@ -27,5 +29,6 @@ public class TargetorApplication extends Application {
 			((TextView) activity.findViewById(id)).setTypeface(typeface);
 		}
 	}
+
 
 }

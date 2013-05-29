@@ -47,7 +47,7 @@
                     android:id="@+id/button_discoverable"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="discoverableButtonClick"
+                    android:onClick="makeDiscoverable"
                     android:text="@string/make_discoverable" />
 
                 <Button
@@ -58,7 +58,7 @@
                     android:text="@string/search_devices" />
 
                 <ListView
-                    android:id="@+id/search_list"
+                    android:id="@+id/list_new_devices"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/background_dark" >
@@ -81,11 +81,12 @@
                     android:textSize="24dp" />
 
                 <ListView
-                    android:id="@+id/paired_list"
+                    android:id="@+id/list_paired_devices"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/background_dark" >
                 </ListView>
+
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
