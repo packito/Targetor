@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -223,42 +224,115 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 		}
 	}
 
-	private class ConnectTask extends AsyncTask<Void, Void, Boolean> {
+	// private class ConnectTask extends AsyncTask<Void, Void, Boolean> {
+	//
+	// private ProgressDialog dialog;
+	// private BluetoothSocket socket;
+	// private BluetoothDevice remoteDevice;
+	//
+	// public ConnectTask(BluetoothDevice remoteDevice) {
+	// this.remoteDevice = remoteDevice;
+	// }
+	//
+	// @Override
+	// protected void onPreExecute() {
+	// dialog = new ProgressDialog(BTFindActivity.this);
+	// dialog.setCancelable(false);
+	// dialog.setCanceledOnTouchOutside(false);
+	// String connectingTo = getResources().getString(
+	// R.string.connecting_to);
+	// dialog.setTitle(connectingTo + " " + remoteDevice.getName() + "…");
+	// dialog.show();
+	// }
+	//
+	// /**
+	// * attempt connection to {@link #remoteDevice}.
+	// *
+	// * @param params
+	// * has no effect
+	// * @return true if the connaction was successful, false otherwise
+	// */
+	// @Override
+	// protected Boolean doInBackground(Void... params) {
+	// try {
+	// socket = remoteDevice
+	// .createRfcommSocketToServiceRecord(MY_UUID);
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	//
+	// // Cancel discovery because it will slow down the connection
+	// bluetoothAdapter.cancelDiscovery();
+	//
+	// try {
+	// // Connect the device through the socket. This will block
+	// // until it succeeds or throws an exception
+	// socket.connect();
+	// } catch (IOException connectException) {
+	// // Unable to connect; close the socket and get out
+	// try {
+	// socket.close();
+	// } catch (IOException closeException) {
+	// }
+	// return false;
+	// }
+	//
+	// // Do work to manage the connection (in a separate thread)
+	// manageConnectedSocket(socket);
+	//
+	// return true;
+	// }
+	//
+	// @Override
+	// protected void onPostExecute(Boolean result) {
+	// dialog.dismiss();
+	// if (!result) {
+	// // connection unsuccessful, show toast
+	// String cantConnect = getResources().getString(
+	// R.string.cant_connect);
+	// Toast.makeText(BTFindActivity.this,
+	// cantConnect + " " + remoteDevice.getName(),
+	// Toast.LENGTH_SHORT).show();
+	// }
+	// }
+	//
+	// }
 
-		private ProgressDialog dialog;
+	protected ProgressDialog dialog;
+
+	/** Thread used to connect to a remote device */
+	private class ConnectThread extends Thread {
 		private BluetoothSocket socket;
-		private BluetoothDevice remoteDevice;
 
-		public ConnectTask(BluetoothDevice remoteDevice) {
-			this.remoteDevice = remoteDevice;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			dialog = new ProgressDialog(BTFindActivity.this);
-			dialog.setCancelable(false);
-			dialog.setCanceledOnTouchOutside(false);
-			String connectingTo = getResources().getString(
-					R.string.connecting_to);
-			dialog.setTitle(connectingTo + " " + remoteDevice.getName() + "…");
-			dialog.show();
-		}
-
-		/**
-		 * attempt connection to {@link #remoteDevice}.
-		 * 
-		 * @param params
-		 *            has no effect
-		 * @return true if the connaction was successful, false otherwise
-		 */
-		@Override
-		protected Boolean doInBackground(Void... params) {
+		public ConnectThread(BluetoothDevice device) {
+			// Get a BluetoothSocket to connect with the given BluetoothDevice
 			try {
-				socket = remoteDevice
-						.createRfcommSocketToServiceRecord(MY_UUID);
+				// MY_UUID is the app's UUID string, also used by the server
+				// code
+				socket = device.createRfcommSocketToServiceRecord(MY_UUID);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+
+		}
+
+		public void run() {
+			// TODO rewrite this using Handler
+
+			final String connectingInfo = getResources().getString(
+					R.string.connecting_to)
+					+ " " + socket.getRemoteDevice().getName() + "…";
+			BTFindActivity.this.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					dialog = new ProgressDialog(BTFindActivity.this);
+					dialog.setCancelable(false);
+					dialog.setCanceledOnTouchOutside(false);
+					dialog.setTitle(connectingInfo);
+					dialog.show();
+				}
+			});
 
 			// Cancel discovery because it will slow down the connection
 			bluetoothAdapter.cancelDiscovery();
@@ -269,32 +343,37 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 				socket.connect();
 			} catch (IOException connectException) {
 				// Unable to connect; close the socket and get out
+				final String connectFailInfo = getResources().getString(
+						R.string.cant_connect)
+						+ " " + socket.getRemoteDevice().getName();
+				BTFindActivity.this.runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						Toast.makeText(BTFindActivity.this, connectFailInfo,
+								Toast.LENGTH_SHORT).show();
+						if (dialog != null && dialog.isShowing())
+							dialog.dismiss();
+					}
+				});
 				try {
 					socket.close();
 				} catch (IOException closeException) {
 				}
-				return false;
+				return;
 			}
 
 			// Do work to manage the connection (in a separate thread)
 			manageConnectedSocket(socket);
-
-			return true;
 		}
 
-		@Override
-		protected void onPostExecute(Boolean result) {
-			dialog.dismiss();
-			if (!result) {
-				// connection unsuccessful, show toast
-				String cantConnect = getResources().getString(
-						R.string.cant_connect);
-				Toast.makeText(BTFindActivity.this,
-						cantConnect + " " + remoteDevice.getName(),
-						Toast.LENGTH_SHORT).show();
+		/** Will cancel an in-progress connection, and close the socket */
+		public void cancel() {
+			try {
+				socket.close();
+			} catch (IOException e) {
 			}
 		}
-
 	}
 
 	/**
@@ -309,6 +388,8 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 
 			@Override
 			public void run() {
+				if (dialog != null && dialog.isShowing())
+					dialog.dismiss();
 				String connectedTo = getResources().getString(
 						R.string.connected_to);
 				Toast.makeText(BTFindActivity.this,
@@ -328,8 +409,9 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 			long id) {
 		TextView tvAddress = (TextView) view.findViewById(android.R.id.text2);
 		String address = tvAddress.getText().toString();
-
-		new ConnectTask(bluetoothAdapter.getRemoteDevice(address)).execute();
+		// not working dunno why
+		// new ConnectTask(bluetoothAdapter.getRemoteDevice(address)).execute();
+		new ConnectThread(bluetoothAdapter.getRemoteDevice(address)).start();
 	}
 
 	/**

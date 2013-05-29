@@ -14,7 +14,7 @@
     <string name="search_devices">Search for devices</string>
     <string name="bluetooth_not_supported">Your device doesn\'t support Bluetooth!</string>
     <string name="cant_play_no_bt">Can\'t play multiplayer with Bluetooth disabled!</string>
-    <string name="searching">Searchingcant_connect make sure the other device is discoverable!</string>
+    <string name="searching">Searching… make sure the other device is discoverable!</string>
     <string name="connected_to">Connected to</string>
     <string name="connecting_to">Connecting to</string>
     <string name="cant_connect">Can\'t connect</string>
