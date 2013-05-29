@@ -34,7 +34,7 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 
 	private static final int REQUEST_ENABLE_BT = 13333337;
 	public static final UUID MY_UUID = UUID
-			.fromString("46e06fbc-a6e8-4993-967e-1e7cde602ec7");
+			.fromString("c3f8407d-f3b7-45d8-a1a2-3965a58305e7");
 	public static final String NAME = "Targetor";
 
 	private MySimpleAdapter pairedDevicesAdapter, newDevicesAdapter;
@@ -42,7 +42,7 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 	private BluetoothAdapter bluetoothAdapter;
 	private Button discoverableButton;
 	private MyReceiver receiver;
-	private cz.packito.targetor.BTFindActivity.AcceptThread acceptThread;
+	private AcceptThread acceptThread;
 
 	private class MyReceiver extends BroadcastReceiver {
 
@@ -119,6 +119,12 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 		} else {
 			bluetoothIsOn();
 		}
+	}
+
+	@Override
+	protected void onPause() {
+		acceptThread.cancel();
+		super.onPause();
 	}
 
 	@Override
