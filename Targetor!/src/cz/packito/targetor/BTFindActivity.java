@@ -124,10 +124,7 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 
 	@Override
 	protected void onPause() {
-		if (acceptThread != null) {
-			acceptThread.cancel();
-			acceptThread = null;
-		}
+		acceptThread.cancel();
 		super.onPause();
 	}
 
