@@ -18,4 +18,6 @@
     <string name="connected_to">Connected to</string>
     <string name="connecting_to">Connecting to</string>
     <string name="cant_connect">Can\'t connect</string>
+    <string name="opponent_left">Your opponent has left</string>
+    <string name="connection_lost">Connection lost</string>
 </resources>

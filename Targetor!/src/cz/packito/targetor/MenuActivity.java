@@ -83,7 +83,7 @@ public class MenuActivity extends Activity implements View.OnTouchListener,
 		super.onPause();
 	}
 
-	// TODO end
+	// fix playback end
 
 	@Override
 	protected void onDestroy() {

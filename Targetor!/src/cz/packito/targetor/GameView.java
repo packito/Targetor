@@ -107,8 +107,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			if (miss) {
 				playSound(SOUND_MISS);
 				score--;
-				// TODO multiplayer
-				// activity.sendScoreUpdate(score);
+				if(activity.isMultiplayer())
+				 activity.sendScoreUpdate(score);
 			}
 			break;
 		}
@@ -135,13 +135,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	 *            the id of the {@linkplain Target} that opponent shot
 	 */
 	public void opponentShot(int targetId) {
-		// TODO
-		// for (int i = 0; i < targets.size(); i++) {
-		// if (targets.get(i).id == targetId) {
-		// targets.get(i).shootOpponent();
-		// break;
-		// }
-		// }
+		for (int i = 0; i < targets.size(); i++) {
+			if (targets.get(i).id == targetId) {
+				targets.get(i).shootOpponent();
+				break;
+			}
+		}
 	}
 
 	/**
@@ -181,7 +180,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawText("Time left: " + (float) timeleft / 1000 + "s", 50, 50,
 				paint);
 		canvas.drawText("Score " + score, 50, 100, paint);
-		if (activity.multiplayer)
+		if (activity.isMultiplayer())
 			canvas.drawText("Opponent score " + scoreOpponent, 50, 150, paint);
 		// end scores
 
@@ -231,7 +230,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 						// TODO game over, time up
 						activity.toastFromAnotherThread("Game over! " + score
 								+ " points");
-						// end TODO
+						// end game over
 						activity.finish();
 					}
 				}
