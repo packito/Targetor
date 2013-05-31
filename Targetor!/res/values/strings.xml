@@ -8,7 +8,7 @@
     <string name="share_text">Hey I\'m playing Targetor! game for Android. It supports Bluetooth multiplayer, so you can shoot targets with your friends! go check it out at https://play.google.com/store/apps/details?id=cz.packito.targetor</string>
     <string name="share_chooser">Spread the word about Targetor!</string>
     <string name="are_you_sure">Are you sure? There are many targets left!</string>
-    <string name="paired_devices">Paired devices:</string>
+    <string name="paired_devices">Paired devices\nClick to connect:</string>
     <string name="make_discoverable">Make discoverable</string>
     <string name="device_discoverable">Device is discoverable…</string>
     <string name="search_devices">Search for devices</string>
@@ -18,4 +18,10 @@
     <string name="connected_to">Connected to</string>
     <string name="connecting_to">Connecting to</string>
     <string name="cant_connect">Can\'t connect</string>
+    <string name="opponent_left">Your opponent has left</string>
+    <string name="connection_lost">Connection lost</string>
+    <string name="touch_to_start">Touch to start game</string>
+    <string name="touch_to_resume">Touch to resume</string>
+    <string name="bt_help_title">Bluetooth help</string>
+    <string name="bt_help_message">To start a game, click on the device you want to play with.\n\nIf the devices have already been paired, you should see the other one in the left list.\n\nIf the devices are not paired yet, you have to make one of the devices discoverable, and start searching with the other one. After finding, the new device will appear in the list on the right. After clicking it, the devices will automtically be paired and the game starts. </string>
 </resources>

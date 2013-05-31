@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_menu"
     tools:context=".GameActivity" >
 
     <RelativeLayout
@@ -21,27 +20,40 @@
         android:id="@+id/pause_screen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/black"
-        android:clickable="true"
+        android:background="@drawable/bg_menu"
         android:orientation="vertical" >
 
-        <Button
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <ToggleButton
+                android:id="@+id/pause_sound"
+                style="@style/sound_toggle"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:clickable="true"
+                android:onClick="quitGame"
+                android:src="@drawable/quit" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/resume"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:gravity="center"
             android:onClick="resumeGame"
-            android:text="Resume" />
+            android:text="@string/touch_to_start"
+            android:textColor="@android:color/black"
+            android:textSize="48sp" />
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="quitGame"
-            android:text="Quit" />
-
-        <ToggleButton
-            android:id="@+id/pause_sound"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sound" />
     </LinearLayout>
 
 </FrameLayout>

@@ -9,8 +9,9 @@ import android.util.Log;
 
 /**
  * Class that represents a target on the game screen
+ * 
  * @author packito
- *
+ * 
  */
 public class Target {
 
@@ -114,9 +115,8 @@ public class Target {
 			d = rnd.nextDouble() * Math.PI / 2 + Math.PI * 3 / 4;
 		}
 
-		if (gameView.activity.multiplayer) {
-			// TODO multiplayer
-			// gameView.activity.sendNewTarget(type, id, x, y, v, d);
+		if (gameView.activity.isMultiplayer()) {
+			gameView.activity.sendNewTarget(type, id, x, y, v, d);
 		}
 	}
 
@@ -167,8 +167,8 @@ public class Target {
 		gameView.targets.remove(this);
 		TempTarget temp = new TempTarget(gameView, dstRect(), tempBmp);
 		gameView.temps.add(temp);
-		// TODO multiplayee
-		// gameView.activity.sendTargetShot(id);
+		if (gameView.activity.isMultiplayer())
+			gameView.activity.sendTargetShot(id);
 	}
 
 	/**

@@ -108,6 +108,11 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 		registerReceiver(receiver, filter);
 		discoverableButton = (Button) findViewById(R.id.button_discoverable);
 	}
+	@Override
+	protected void onDestroy() {
+		unregisterReceiver(receiver);
+		super.onDestroy();
+	}
 
 	@Override
 	protected void onResume() {
@@ -124,7 +129,10 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 
 	@Override
 	protected void onPause() {
-		acceptThread.cancel();
+		if (acceptThread != null) {
+			acceptThread.cancel();
+			acceptThread = null;
+		}
 		super.onPause();
 	}
 
@@ -432,9 +440,11 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 
 	/** Show bluetooth help dialog */
 	public void help(View v) {
-		// TODO show bluetooth help dialog
-		Toast.makeText(this, "TODO show bluetooth help dialog",
-				Toast.LENGTH_SHORT).show();
+		AlertDialog.Builder helpDialog = new AlertDialog.Builder(this);
+		helpDialog.setIcon(android.R.drawable.ic_menu_help);
+		helpDialog.setTitle(R.string.bt_help_title);
+		helpDialog.setMessage(R.string.bt_help_message);
+		helpDialog.show();
 	}
 
 }

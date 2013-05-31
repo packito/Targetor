@@ -53,43 +53,40 @@ public class MenuActivity extends Activity implements View.OnTouchListener,
 		soundToggle = (ToggleButton) findViewById(R.id.menu_sound);
 		soundToggle.setOnCheckedChangeListener(this);
 
-		music = MediaPlayer.create(this, R.raw.music_menu);
-		music.setLooping(true);
-		try {
-			music.prepare();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
-	// TODO fix playback, coontinue in other menu activities
 
 	@Override
-	protected void onResume() {
-		super.onResume();
+	protected void onStart() {
+		super.onStart();
 		soundOn = preferences.getBoolean(
 				TargetorApplication.TARGETOR_KEY_SOUND_ON, true);
 		soundToggle.setChecked(soundOn);
-		if (soundOn) {
+		if (soundOn)
+			startMusic();
+	}
+
+	@Override
+	protected void onStop() {
+		stopMusic();
+		super.onStop();
+	}
+
+	private void startMusic() {
+		if (music == null) {
+			music = MediaPlayer.create(this, R.raw.music_menu);
+			music.setLooping(true);
 			music.start();
 		}
 	}
 
-	@Override
-	protected void onPause() {
-		if (music.isPlaying()) {
-			music.pause();
+	private void stopMusic() {
+		if (music != null) {
+			music.release();
+			music = null;
 		}
-		super.onPause();
 	}
 
-	// TODO end
-
-	@Override
-	protected void onDestroy() {
-		music.release();
-		super.onDestroy();
-	}
 
 	public void startSingleplayer(View v) {
 		Intent intent = new Intent(this, GameActivity.class);
@@ -123,27 +120,14 @@ public class MenuActivity extends Activity implements View.OnTouchListener,
 	}
 
 	/**
-	 * Prompt to quit the app
+	 * quit the app
 	 * 
 	 * @param v
 	 *            has no effect
 	 */
 
 	public void quit(View v) {
-		AlertDialog.Builder quitDialog = new AlertDialog.Builder(this);
-		quitDialog
-				.setTitle(R.string.are_you_sure)
-				.setNegativeButton(android.R.string.no, null)
-				.setPositiveButton(android.R.string.yes,
-						new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								finish();
-							}
-						});
-		quitDialog.show();
+		finish();
 	}
 
 	@Override
@@ -174,9 +158,9 @@ public class MenuActivity extends Activity implements View.OnTouchListener,
 					soundOn);
 			editor.commit();
 			if (soundOn) {
-				music.start();
-			} else if (music.isPlaying()) {
-				music.pause();
+				startMusic();
+			} else {
+				stopMusic();
 			}
 			break;
 		}

@@ -109,10 +109,9 @@
 
         <ToggleButton
             android:id="@+id/menu_sound"
-            style="@style/icon"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:background="@drawable/sound_toggle"
+            style="@style/sound_toggle"
             android:textOff=""
             android:textOn="" />
 

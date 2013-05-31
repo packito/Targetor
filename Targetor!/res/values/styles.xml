@@ -3,13 +3,13 @@
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="android:Theme.Black.NoTitleBar.Fullscreen">
+    <style name="AppBaseTheme" parent="android:Theme.NoTitleBar.Fullscreen">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
+            backward-compatibility can go here.
         -->
     </style>
 
@@ -18,6 +18,9 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    <!-- Dialog windows theme. -->
+    <style name="DialogTheme" parent="android:Theme.Dialog"></style>
+
     <style name="icon">
 
         <!-- icons in the menu -->
@@ -25,4 +28,12 @@
         <item name="android:layout_width">wrap_content</item>
     </style>
 
+    <style name="sound_toggle">
+        <item name="android:background">@drawable/sound_toggle</item>
+        <item name="android:textOn"></item>
+        <item name="android:textOff"></item>
+        
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
 </resources>

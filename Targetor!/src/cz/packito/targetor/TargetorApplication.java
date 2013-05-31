@@ -5,7 +5,11 @@ import android.app.Application;
 import android.bluetooth.BluetoothSocket;
 import android.graphics.Typeface;
 import android.widget.TextView;
-
+/**
+ * Class containing specific constants for Targetor! and objects common for more activities
+ * @author packito
+ *
+ */
 public class TargetorApplication extends Application {
 
 	public static final String TARGETOR_EXTRA_MULTIPLAYER = "multiplayer";
