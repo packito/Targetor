@@ -33,6 +33,10 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 	private WakeLock wakeLock;
 
 	private boolean multiplayer;
+	/** flag if the activity is currently resumed */
+	private boolean onTop;
+	private boolean opponentReady = false;
+	private boolean opponentPausedOneSecondAgoDamnThisIsALongVariablename = false;
 
 	public boolean isMultiplayer() {
 		return multiplayer;
@@ -54,8 +58,8 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 		gameView = (GameView) findViewById(R.id.game_view);
 		pauseScreen = findViewById(R.id.pause_screen);
 		soundToggle = (ToggleButton) findViewById(R.id.pause_sound);
-		resume = (TextView)findViewById(R.id.resume);
-		
+		resume = (TextView) findViewById(R.id.resume);
+
 		TargetorApplication.changeTypeface(this, R.id.resume);
 
 		// load the precerences
@@ -96,16 +100,18 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 				sendScreenSize();
 			}
 		}
+		onTop = true;
 	}
 
 	@Override
 	protected void onPause() {
+		onTop = false;
 		if (gameView.isRunning()) {
 			pauseGame();
 		}
 		if (isMultiplayer()) {
 			if (connectedThread != null) {
-			sendAppPaused();
+				sendAppPaused();
 				connectedThread.running = false;
 				connectedThread = null;
 			}
@@ -139,13 +145,21 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 	 *            has no effect
 	 */
 	public void resumeGame(View v) {
-		pauseScreen.setVisibility(View.INVISIBLE);
-		resume.setText(R.string.touch_to_resume);
-		gameView.startThread();
-		if (isMultiplayer()) {
-			sendGameResumed();
+		// resume only if opponent is ready in multiplayer
+		if (onTop && (opponentReady || !multiplayer)) {
+			// block from resuming if opponent just paused
+			if (!opponentPausedOneSecondAgoDamnThisIsALongVariablename) {
+				//resume the game
+				pauseScreen.setVisibility(View.INVISIBLE);
+				resume.setText(R.string.touch_to_resume);
+				gameView.startThread();
+				if (isMultiplayer()) {
+					sendGameResumed();
+				}
+			}
+		} else {
+			toastFromAnotherThread(R.string.opponent_not_ready);
 		}
-
 	}
 
 	/** Shows a prompt to quit the game */
@@ -225,13 +239,13 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 	}
 
 	/** stops the current {@link ConnectedThread} */
-	public void disconnect(){
-		if(connectedThread!=null){
-			connectedThread.running=false;
-			connectedThread=null;
+	public void disconnect() {
+		if (connectedThread != null) {
+			connectedThread.running = false;
+			connectedThread = null;
 		}
 	}
-	
+
 	/** Thread that handles sending and receiving data via Bluetooth */
 
 	private class ConnectedThread extends Thread {
@@ -302,6 +316,17 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 									}
 								});
 							}
+							opponentPausedOneSecondAgoDamnThisIsALongVariablename = true;
+							new Thread() {
+								public void run() {
+									try {
+										Thread.sleep(1000);
+										opponentPausedOneSecondAgoDamnThisIsALongVariablename = false;
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
+								};
+							}.start();
 							break;
 						case GAME_RESUMED:
 							if (!gameView.isRunning()) {
@@ -323,24 +348,10 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 							break loop;
 						case APP_PAUSED:
 							// opponent left the app, prevent from resuming
-							runOnUiThread(new Runnable() {
-
-								@Override
-								public void run() {
-									resume.setEnabled(false);
-									resume.setClickable(false);
-								}
-							});
+							opponentReady = false;
 							break;
 						case APP_RESUMED:
-							runOnUiThread(new Runnable() {
-
-								@Override
-								public void run() {
-									resume.setEnabled(true);
-									resume.setClickable(true);
-								}
-							});
+							opponentReady = true;
 							break;
 						case NEW_TARGET:
 							int type = byteBuffer.getInt();

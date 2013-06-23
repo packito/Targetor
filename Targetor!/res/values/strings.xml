@@ -34,4 +34,5 @@
     <string name="programming_by">Programming by:</string>
     <string name="other_sounds">Other sounds from freesound.org</string>
     <string name="email_chooser">Send Email to Developer</string>
+    <string name="opponent_not_ready">Your opponent is not ready to play!</string>
 </resources>
