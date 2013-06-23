@@ -11,9 +11,9 @@
         android:src="@drawable/menu_bluetooth_bg" />
 
     <LinearLayout
-        android:baselineAligned="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:baselineAligned="false"
         android:orientation="horizontal" >
 
         <RelativeLayout
@@ -30,14 +30,13 @@
         </RelativeLayout>
 
         <LinearLayout
-            android:baselineAligned="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="15dp"
             android:layout_marginBottom="15dp"
-            android:layout_weight="1" >
+            android:layout_weight="1"
+            android:baselineAligned="false" >
 
-            
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -59,8 +58,8 @@
                     android:layout_height="match_parent"
                     android:background="@android:color/background_dark" >
                 </ListView>
-
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -72,14 +71,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="makeDiscoverable"
-                    android:text="@string/make_discoverable" />
+                    android:text="@string/make_discoverable"
+                    android:textColor="@android:color/black" />
 
                 <Button
                     android:id="@+id/button_search"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="searchForDevices"
-                    android:text="@string/search_devices" />
+                    android:text="@string/search_devices"
+                    android:textColor="@android:color/black" />
 
                 <ListView
                     android:id="@+id/list_new_devices"
@@ -88,7 +89,6 @@
                     android:background="@android:color/background_dark" >
                 </ListView>
             </LinearLayout>
-
         </LinearLayout>
     </LinearLayout>
 

@@ -104,8 +104,8 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 			pauseGame();
 		}
 		if (isMultiplayer()) {
-			sendAppPaused();
 			if (connectedThread != null) {
+			sendAppPaused();
 				connectedThread.running = false;
 				connectedThread = null;
 			}
@@ -224,6 +224,14 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 		}
 	}
 
+	/** stops the current {@link ConnectedThread} */
+	public void disconnect(){
+		if(connectedThread!=null){
+			connectedThread.running=false;
+			connectedThread=null;
+		}
+	}
+	
 	/** Thread that handles sending and receiving data via Bluetooth */
 
 	private class ConnectedThread extends Thread {
@@ -276,7 +284,7 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 				try {
 					// Read from the InputStream
 					bytes = inStream.read(buffer);
-					Log.d("bluetoothTargetor", "Read " + bytes + " bytes");
+					Log.d(TAG, "Read " + bytes + " bytes");
 
 					if (bytes > 0) {// handle received data
 						ByteBuffer byteBuffer = ByteBuffer.wrap(buffer, 0,

@@ -13,6 +13,8 @@ import android.widget.TextView;
 public class TargetorApplication extends Application {
 
 	public static final String TARGETOR_EXTRA_MULTIPLAYER = "multiplayer";
+	public static final String TARGETOR_EXTRA_SCORE = "score";
+	public static final String TARGETOR_EXTRA_WIN= "win";
 	public static final String TARGETOR_KEY_SOUND_ON = "sound_on";
 	public static final String SHARED_PREFERENCES = "TargetorPreferences";
 	public BluetoothSocket btSocket;

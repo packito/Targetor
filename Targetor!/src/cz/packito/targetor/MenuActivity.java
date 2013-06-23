@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -28,7 +29,7 @@ import android.widget.ToggleButton;
  */
 
 public class MenuActivity extends Activity implements View.OnTouchListener,
-		OnCheckedChangeListener {
+		OnClickListener{
 
 	private SharedPreferences preferences;
 	private MediaPlayer music;
@@ -51,7 +52,7 @@ public class MenuActivity extends Activity implements View.OnTouchListener,
 
 		// register sound preference changes
 		soundToggle = (ToggleButton) findViewById(R.id.menu_sound);
-		soundToggle.setOnCheckedChangeListener(this);
+		soundToggle.setOnClickListener(this);
 
 	}
 
@@ -149,10 +150,10 @@ public class MenuActivity extends Activity implements View.OnTouchListener,
 	 * plays/stops music playback
 	 */
 	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+	public void onClick(View buttonView) {
 		switch (buttonView.getId()) {
 		case R.id.menu_sound:
-			soundOn = isChecked;
+			soundOn = ((Checkable)buttonView).isChecked();
 			SharedPreferences.Editor editor = preferences.edit();
 			editor.putBoolean(TargetorApplication.TARGETOR_KEY_SOUND_ON,
 					soundOn);

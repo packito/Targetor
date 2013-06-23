@@ -3,8 +3,10 @@ package cz.packito.targetor;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -33,6 +35,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	public float MX, MY; // normalized screen resolution; MX=1.0,
 							// MY=height/width
 	public int idGenerator = 0;
+	private final Random rnd=new Random();
 
 	private final SurfaceHolder holder;
 	public List<Target> targets = new ArrayList<Target>();
@@ -41,7 +44,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	public GameActivity activity;
 	public int score = 0;
 	public int scoreOpponent = 0;
-	public long timeleft = 600000;// ms
+	public long timeleft = 120000;// ms
 
 	private boolean soundOn = true;
 	public final SoundPool sounds;
@@ -102,8 +105,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			if (miss) {
 				playSound(SOUND_MISS);
 				score--;
-				if(activity.isMultiplayer())
-				 activity.sendScoreUpdate(score);
+				if (activity.isMultiplayer())
+					activity.sendScoreUpdate(score);
 			}
 			break;
 		}
@@ -162,7 +165,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	 */
 	public void redraw(Canvas canvas) {
 		// randomly add targets
-		if (Math.random() < 0.03) {
+		if (rnd.nextInt(16)==0) {
 			addTarget(Target.TYPE_NORMAL);
 		}
 
@@ -223,9 +226,23 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					if (timeleft < 0) {
 						running = false;
 						// TODO game over, time up
-						activity.toastFromAnotherThread("Game over! " + score
-								+ " points");
-						// end game over
+						Intent finishIntent = new Intent(activity,
+								FinishActivity.class);
+						finishIntent.putExtra(
+								TargetorApplication.TARGETOR_EXTRA_MULTIPLAYER,
+								activity.isMultiplayer());
+						finishIntent.putExtra(
+								TargetorApplication.TARGETOR_EXTRA_WIN,
+								score >= scoreOpponent);
+						finishIntent
+								.putExtra(
+										TargetorApplication.TARGETOR_EXTRA_SCORE,
+										score);
+						if(activity.isMultiplayer()){
+							activity.disconnect();
+						}
+						stopThread();
+						activity.startActivity(finishIntent);
 						activity.finish();
 					}
 				}

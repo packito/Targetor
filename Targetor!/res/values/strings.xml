@@ -24,4 +24,14 @@
     <string name="touch_to_resume">Touch to resume</string>
     <string name="bt_help_title">Bluetooth help</string>
     <string name="bt_help_message">To start a game, click on the device you want to play with.\n\nIf the devices have already been paired, you should see the other one in the left list.\n\nIf the devices are not paired yet, you have to make one of the devices discoverable, and start searching with the other one. After finding, the new device will appear in the list on the right. After clicking it, the devices will automtically be paired and the game starts. </string>
+    <string name="time_up">Time\'s up!</string>
+    <string name="your_score">"Your score: "</string>
+    <string name="win">You won!</string>
+    <string name="lose">You lose!</string>
+    <string name="music_author_name">Aj Novobilski</string>
+    <string name="music_by">Music by:</string>
+    <string name="developer_name">packito</string>
+    <string name="programming_by">Programming by:</string>
+    <string name="other_sounds">Other sounds from freesound.org</string>
+    <string name="email_chooser">Send Email to Developer</string>
 </resources>
