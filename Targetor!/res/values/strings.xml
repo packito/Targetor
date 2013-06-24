@@ -40,4 +40,5 @@
     <string name="me">Me</string>
     <string name="score">Score</string>
     <string name="accuracy">Accuracy</string>
+    <string name="total">Total wins</string>
 </resources>

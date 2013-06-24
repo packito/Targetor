@@ -95,9 +95,20 @@ public class FinishActivity extends Activity {
 			table.addView(trAccuracy);
 			
 			// TODO writing to db
+			TargetorDatabase db = new TargetorDatabase(this);
+			db.open();
+			db.insertHistoryMultiplayer(score, targetsShot, misses, scoreOpponent, opponentAddress);
+			
 			
 			//TODO total wins vs loses (database)
-
+			TableRow trTotal= new TableRow(this);
+			trTotal.setGravity(Gravity.CENTER);
+			trTotal.addView(tv(R.string.total));
+			trTotal.addView(tv(""+db.getWins(opponentAddress)));
+			trTotal.addView(tv(""+db.getLoses(opponentAddress)));
+			table.addView(trTotal);
+			
+			
 		} else {
 			// results view in singleplayer
 
@@ -130,6 +141,7 @@ public class FinishActivity extends Activity {
 
 	/** Play another game. If multiplayer, plays with the same player */
 	public void again(View v) {
+		v.setEnabled(false);// prevent double clicking
 		Intent intent = new Intent(this, GameActivity.class);
 		intent.putExtra(TargetorApplication.TARGETOR_EXTRA_MULTIPLAYER,
 				multiplayer);
