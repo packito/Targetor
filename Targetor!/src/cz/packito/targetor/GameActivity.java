@@ -3,16 +3,21 @@ package cz.packito.targetor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+
+import cz.packito.targetor.GameView.GameThread;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.text.InputFilter.LengthFilter;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -133,7 +138,7 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 	public void pauseGame() {
 		gameView.stopThread();
 		pauseScreen.setVisibility(View.VISIBLE);
-		if (isMultiplayer()) {
+		if (isMultiplayer() && connectedThread != null) {
 			sendGamePaused();
 		}
 	}
@@ -149,7 +154,7 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 		if (onTop && (opponentReady || !multiplayer)) {
 			// block from resuming if opponent just paused
 			if (!opponentPausedOneSecondAgoDamnThisIsALongVariablename) {
-				//resume the game
+				// resume the game
 				pauseScreen.setVisibility(View.INVISIBLE);
 				resume.setText(R.string.touch_to_resume);
 				gameView.startThread();
@@ -246,6 +251,43 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 		}
 	}
 
+	public void gameOver() {
+		gameView.stopThread();
+		// TODO finish
+		if (isMultiplayer() && connectedThread != null) {
+			sendGameOver(gameView.score, gameView.targetsShot, gameView.misses);
+		} else {
+			startFinishActivity();
+		}
+	}
+
+	private void startFinishActivity() {
+		Intent finishIntent = new Intent(this, FinishActivity.class);
+		finishIntent
+				.putExtra(TargetorApplication.TARGETOR_EXTRA_MULTIPLAYER,
+						isMultiplayer())
+				.putExtra(TargetorApplication.TARGETOR_EXTRA_SCORE,
+						gameView.score)
+				.putExtra(TargetorApplication.TARGETOR_EXTRA_TARGETS_SHOT,
+						gameView.targetsShot)
+				.putExtra(TargetorApplication.TARGETOR_EXTRA_MISSES,
+						gameView.misses);
+		if (isMultiplayer()) {
+			finishIntent
+					.putExtra(
+							TargetorApplication.TARGETOR_EXTRA_OPPONENT_MISSES,
+							gameView.missesOpponent)
+					.putExtra(
+							TargetorApplication.TARGETOR_EXTRA_OPPONENT_SCORE,
+							gameView.scoreOpponent)
+					.putExtra(
+							TargetorApplication.TARGETOR_EXTRA_OPPONENT_TARGETS_SHOT,
+							gameView.targetsShotOpponent);
+		}
+		startActivity(finishIntent);
+		finish();
+	}
+
 	/** Thread that handles sending and receiving data via Bluetooth */
 
 	private class ConnectedThread extends Thread {
@@ -271,12 +313,21 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 		public static final byte APP_PAUSED = 107;
 		/** no data */
 		public static final byte APP_RESUMED = 108;
+		/** int score, int targetsShot, int misses */
+		public static final byte GAME_OVER = 109;
 
 		private final BluetoothSocket socket;
 		private InputStream inStream;
 		private OutputStream outStream;
 
+		/**
+		 * The length of each message in bytes. Shorter messages will have
+		 * zeroes added at the end to match the length
+		 */
+		public static final int MESSAGE_LENGTH = 60;
+
 		public boolean running;
+		private boolean gameIsOver=false;
 
 		public ConnectedThread(BluetoothSocket socket) {
 			this.socket = socket;
@@ -289,7 +340,8 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 		}
 
 		public void run() {
-			byte[] buffer = new byte[1024]; // buffer store for the stream
+			byte[] buffer = new byte[MESSAGE_LENGTH]; // buffer store for the
+														// stream
 			int bytes; // number of bytes returned from read()
 
 			running = true;
@@ -346,11 +398,29 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 							// TODO handle this better
 							finish();
 							break loop;
+						case GAME_OVER:
+							gameView.scoreOpponent = byteBuffer.getInt();
+							gameView.targetsShotOpponent = byteBuffer.getInt();
+							gameView.missesOpponent = byteBuffer.getInt();
+							if (!gameIsOver)
+								sendGameOver(gameView.score,
+										gameView.targetsShot, gameView.misses);
+							gameIsOver = true;
+							disconnect();
+							startFinishActivity();
+							
+							//empty the inStream
+							// prevents from reading leftovers when restarting game
+							while(inStream.available()>0)
+								inStream.read();
+							break loop;
 						case APP_PAUSED:
 							// opponent left the app, prevent from resuming
 							opponentReady = false;
 							break;
 						case APP_RESUMED:
+							if (!opponentReady)
+								sendAppResumed();
 							opponentReady = true;
 							break;
 						case NEW_TARGET:
@@ -413,11 +483,20 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 		 * Call this from the main activity to send data to the remote device.
 		 * First byte is the type of meassage (choose from constants in
 		 * {@link ConnectedThread}). Other bytes depend upon choosen type of
-		 * message.
+		 * message and filled to match the {@linkplain #MESSAGE_LENGTH}.
 		 */
 		public void write(byte[] bytes) {
+			ByteBuffer byteBuffer = ByteBuffer.allocate(MESSAGE_LENGTH);
 			try {
-				outStream.write(bytes);
+				byteBuffer.put(bytes);
+			} catch (BufferOverflowException e) {
+				e.printStackTrace();
+			}
+			while (byteBuffer.hasRemaining()) {// fill to match length
+				byteBuffer.put((byte) 0);
+			}
+			try {
+				outStream.write(byteBuffer.array());
 				outStream.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -485,6 +564,15 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 		byte[] array = byteBuffer.array();
 		connectedThread.write(array);
 
+	}
+
+	public void sendGameOver(int score, int targetsShot, int misses) {
+		ByteBuffer byteBuffer = ByteBuffer.allocate(13);
+		byteBuffer.put(ConnectedThread.GAME_OVER).putInt(score)
+				.putInt(targetsShot).putInt(misses);
+
+		byte[] array = byteBuffer.array();
+		connectedThread.write(array);
 	}
 
 	public void sendScreenSize() {

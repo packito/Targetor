@@ -16,14 +16,14 @@
         android:textColor="@android:color/black"
         android:textSize="72dp" />
 
-    <TextView
-        android:id="@+id/finish_score"
+    <TableLayout
+        android:id="@+id/finish_table"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="@string/your_score"
         android:textColor="@android:color/black"
-        android:textSize="54dp" />
+        android:textSize="54dp" >
+    </TableLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -44,8 +44,14 @@
             android:layout_weight="1"
             android:onClick="exit"
             android:src="@drawable/exit_game" />
-    </LinearLayout>
 
-    
+        <ImageView
+            android:id="@+id/next_lvl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="next"
+            android:src="@drawable/next" />
+    </LinearLayout>
 
 </LinearLayout>

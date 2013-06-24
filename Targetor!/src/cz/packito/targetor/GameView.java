@@ -31,20 +31,28 @@ import android.view.SurfaceView;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
+	/** points lost when missing a target */
+	private static final int SCORE_MISS = 3;
 	public final Bitmap BMP_BG, BMP_TARGET_NORMAL, BMP_TARGET_NORMAL_TEMP;
 	public float MX, MY; // normalized screen resolution; MX=1.0,
 							// MY=height/width
 	public int idGenerator = 0;
-	private final Random rnd=new Random();
+	private final Random rnd = new Random();
 
 	private final SurfaceHolder holder;
 	public List<Target> targets = new ArrayList<Target>();
 	public List<TempTarget> temps = new ArrayList<TempTarget>();
 	private GameThread thread;
 	public GameActivity activity;
+
 	public int score = 0;
+	public int targetsShot = 0;
+	public int misses = 0;
 	public int scoreOpponent = 0;
-	public long timeleft = 120000;// ms
+	public int targetsShotOpponent = 0;
+	public int missesOpponent = 0;
+//	public int startingTime = 60; // s
+	public long timeleft;// ms
 
 	private boolean soundOn = true;
 	public final SoundPool sounds;
@@ -81,6 +89,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		SOUND_MISS = sounds.load(activity, R.raw.miss, 1);
 		SOUND_TARGET_NORMAL = sounds
 				.load(activity, R.raw.target_normal_shot, 1);
+		
+		timeleft=60000;
 	}
 
 	/**
@@ -103,8 +113,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 			}
 			if (miss) {
+				misses++;
 				playSound(SOUND_MISS);
-				score--;
+				score-=SCORE_MISS;
 				if (activity.isMultiplayer())
 					activity.sendScoreUpdate(score);
 			}
@@ -165,7 +176,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	 */
 	public void redraw(Canvas canvas) {
 		// randomly add targets
-		if (rnd.nextInt(16)==0) {
+		if (rnd.nextInt(16) == 0) {
 			addTarget(Target.TYPE_NORMAL);
 		}
 
@@ -226,24 +237,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 					if (timeleft < 0) {
 						running = false;
 						// TODO game over, time up
-						Intent finishIntent = new Intent(activity,
-								FinishActivity.class);
-						finishIntent.putExtra(
-								TargetorApplication.TARGETOR_EXTRA_MULTIPLAYER,
-								activity.isMultiplayer());
-						finishIntent.putExtra(
-								TargetorApplication.TARGETOR_EXTRA_WIN,
-								score >= scoreOpponent);
-						finishIntent
-								.putExtra(
-										TargetorApplication.TARGETOR_EXTRA_SCORE,
-										score);
-						if(activity.isMultiplayer()){
-							activity.disconnect();
-						}
-						stopThread();
-						activity.startActivity(finishIntent);
-						activity.finish();
+						activity.gameOver();
 					}
 				}
 				lastTime = startTime;
@@ -266,7 +260,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				// handle constant FPS
 				sleepTime = ticksPS - (System.currentTimeMillis() - startTime);
 				try {
-					Log.d("GameView", "sleep time: " + sleepTime + "ms");
 					if (sleepTime > 0)
 						Thread.sleep(sleepTime);
 				} catch (InterruptedException e) {

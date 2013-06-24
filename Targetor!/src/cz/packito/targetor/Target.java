@@ -167,6 +167,7 @@ public class Target {
 		gameView.targets.remove(this);
 		TempTarget temp = new TempTarget(gameView, dstRect(), tempBmp);
 		gameView.temps.add(temp);
+		gameView.targetsShot++;
 		if (gameView.activity.isMultiplayer())
 			gameView.activity.sendTargetShot(id);
 	}

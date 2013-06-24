@@ -36,4 +36,8 @@
     <string name="email_chooser">Send Email to Developer</string>
     <string name="opponent_not_ready">Your opponent is not ready to play!</string>
     <string name="no_email_client">No e-mail client installed.\nEmail address was copied to clipboard.</string>
+    <string name="tie">It\'s a tie!</string>
+    <string name="me">Me</string>
+    <string name="score">Score</string>
+    <string name="accuracy">Accuracy</string>
 </resources>
