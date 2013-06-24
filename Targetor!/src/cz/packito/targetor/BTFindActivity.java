@@ -64,8 +64,6 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 				case BluetoothAdapter.SCAN_MODE_NONE:
 					discoverableButton.setText(R.string.make_discoverable);
 					discoverableButton.setEnabled(true);
-					Toast.makeText(BTFindActivity.this, "scan mode is none",
-							Toast.LENGTH_SHORT).show();
 					break;
 				}
 
