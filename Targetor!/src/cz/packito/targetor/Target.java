@@ -17,6 +17,8 @@ public class Target {
 
 	// for adding other target types
 	public static final int TYPE_NORMAL = 1;
+	public static final int TYPE_DIAMOND = 2;
+	public static final int TYPE_FLOWER = 3;
 
 	private final GameView gameView;
 	private final Bitmap bmp, tempBmp;
@@ -65,6 +67,22 @@ public class Target {
 			value = 10;
 			SOUND_ID = gameView.SOUND_TARGET_NORMAL;
 			r = 0.1f;
+			break;
+		case TYPE_DIAMOND:
+			bmp = gameView.BMP_TARGET_DIAMOND;
+			tempBmp = gameView.BMP_TARGET_DIAMOND_TEMP;
+			srcRect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+			value = 42;
+			SOUND_ID = gameView.SOUND_TARGET_DIAMOND;
+			r = 0.075f;
+			break;
+		case TYPE_FLOWER:
+			bmp = gameView.BMP_TARGET_FLOWER;
+			tempBmp = gameView.BMP_TARGET_FLOWER_TEMP;
+			srcRect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+			value = -25;
+			SOUND_ID = gameView.SOUND_TARGET_FLOWER;
+			r = 0.12f;
 			break;
 		default:
 			bmp = gameView.BMP_TARGET_NORMAL;
@@ -160,8 +178,10 @@ public class Target {
 	/**
 	 * handles the shooting(removing,adding points) of this target by local
 	 * player
+	 * 
+	 * @return the target's value
 	 */
-	public void shoot() {
+	public int shoot() {
 		gameView.score += value;
 		gameView.playSound(SOUND_ID);
 		gameView.targets.remove(this);
@@ -170,6 +190,7 @@ public class Target {
 		gameView.targetsShot++;
 		if (gameView.activity.isMultiplayer())
 			gameView.activity.sendTargetShot(id);
+		return value;
 	}
 
 	/**

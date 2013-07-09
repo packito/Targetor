@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -31,19 +32,26 @@ import android.view.SurfaceView;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
+	public final Typeface TYPEFACE;
+
 	/** points lost when missing a target */
-	private static final int SCORE_MISS = 3;
-	public final Bitmap BMP_BG, BMP_TARGET_NORMAL, BMP_TARGET_NORMAL_TEMP;
+	private static final int SCORE_MISS = -3;
+	public final Bitmap BMP_BG, BMP_TARGET_NORMAL, BMP_TARGET_NORMAL_TEMP,
+			BMP_TARGET_DIAMOND, BMP_TARGET_DIAMOND_TEMP, BMP_TARGET_FLOWER,
+			BMP_TARGET_FLOWER_TEMP;
 	public float MX, MY; // normalized screen resolution; MX=1.0,
 							// MY=height/width
 	public int idGenerator = 0;
 	private final Random rnd = new Random();
 
 	private final SurfaceHolder holder;
-	public List<Target> targets = new ArrayList<Target>();
-	public List<TempTarget> temps = new ArrayList<TempTarget>();
+	public final List<Target> targets = new ArrayList<Target>();
+	public final List<TempTarget> temps = new ArrayList<TempTarget>();
+	public final List<TempScore> tempScores = new ArrayList<TempScore>();
 	private GameThread thread;
 	public GameActivity activity;
+
+	private final Paint scoreFillPaint, scoreStrokePaint;
 
 	public int score = 0;
 	public int targetsShot = 0;
@@ -51,13 +59,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	public int scoreOpponent = 0;
 	public int targetsShotOpponent = 0;
 	public int missesOpponent = 0;
-//	public int startingTime = 60; // s
+	// public int startingTime = 60; // s
 	public long timeleft;// ms
 
 	private boolean soundOn = true;
 	public final SoundPool sounds;
 	public final MediaPlayer music;
-	public final int SOUND_MISS, SOUND_TARGET_NORMAL;
+	public final int SOUND_MISS, SOUND_TARGET_NORMAL, SOUND_TARGET_DIAMOND,
+			SOUND_TARGET_FLOWER;
 
 	/**
 	 * The constructor to be called when layout activity_game.xml is inflated.
@@ -74,6 +83,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		holder = getHolder();
 		holder.addCallback(this);
 
+		// load typeface and set paint
+		TYPEFACE = Typeface.createFromAsset(activity.getAssets(),
+				"zekton__.ttf");
+		scoreFillPaint = new Paint();
+		scoreFillPaint.setTypeface(TYPEFACE);
+		scoreFillPaint.setColor(Color.WHITE);
+
+		scoreStrokePaint = new Paint(scoreFillPaint);
+		scoreStrokePaint.setStyle(Paint.Style.STROKE);
+		scoreStrokePaint.setColor(Color.BLACK);
+
 		// load the bitmaps
 		BMP_BG = BitmapFactory.decodeResource(getResources(),
 				R.drawable.bg_game);
@@ -81,6 +101,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				R.drawable.target_normal);
 		BMP_TARGET_NORMAL_TEMP = BitmapFactory.decodeResource(getResources(),
 				R.drawable.target_normal_temp);
+		BMP_TARGET_DIAMOND = BitmapFactory.decodeResource(getResources(),
+				R.drawable.target_diamond);
+		BMP_TARGET_DIAMOND_TEMP = BitmapFactory.decodeResource(getResources(),
+				R.drawable.target_diamond_temp);
+		BMP_TARGET_FLOWER=BitmapFactory.decodeResource(getResources(), R.drawable.target_flower);
+		BMP_TARGET_FLOWER_TEMP=BitmapFactory.decodeResource(getResources(), R.drawable.target_flower_temp);
 
 		// load the sounds
 		music = MediaPlayer.create(activity, R.raw.music_game);
@@ -89,8 +115,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		SOUND_MISS = sounds.load(activity, R.raw.miss, 1);
 		SOUND_TARGET_NORMAL = sounds
 				.load(activity, R.raw.target_normal_shot, 1);
-		
-		timeleft=60000;
+		SOUND_TARGET_DIAMOND = sounds.load(activity, R.raw.target_diamond_shot,
+				1);
+		SOUND_TARGET_FLOWER = sounds
+				.load(activity, R.raw.target_flower_shot, 1);
+
+		timeleft = 60000;
 	}
 
 	/**
@@ -107,7 +137,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			float normY = event.getY() / getHeight() * MY;
 			for (int i = 0; i < targets.size(); i++) {
 				if (targets.get(i).isCollision(normX, normY)) {
-					targets.get(i).shoot();
+					int value = targets.get(i).shoot();
+					TempScore ts = new TempScore(this, event.getX(),
+							event.getY(), value);
+					tempScores.add(ts);
 					miss = false;
 					break;
 				}
@@ -115,7 +148,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 			if (miss) {
 				misses++;
 				playSound(SOUND_MISS);
-				score-=SCORE_MISS;
+				score += SCORE_MISS;
+				TempScore ts = new TempScore(this, event.getX(), event.getY(),
+						SCORE_MISS);
+				tempScores.add(ts);
 				if (activity.isMultiplayer())
 					activity.sendScoreUpdate(score);
 			}
@@ -175,24 +211,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	 * @param canvas
 	 */
 	public void redraw(Canvas canvas) {
-		// randomly add targets
+		// randomly add targets TODO add target according to lvl.
 		if (rnd.nextInt(16) == 0) {
 			addTarget(Target.TYPE_NORMAL);
 		}
+		if (rnd.nextInt(50) == 0)
+			addTarget(Target.TYPE_DIAMOND);
+		if (rnd.nextInt(40) == 0)
+			addTarget(Target.TYPE_FLOWER);
 
 		canvas.drawBitmap(BMP_BG, 0, 0, null);// draw bg
-		// scores
-		Paint paint = new Paint();
-		paint.setColor(Color.WHITE);
-		paint.setTypeface(Typeface.MONOSPACE);
-		paint.setTextSize(30);
-		canvas.drawText("Time left: " + (float) timeleft / 1000 + "s", 50, 50,
-				paint);
-		canvas.drawText("Score " + score, 50, 100, paint);
-		if (activity.isMultiplayer())
-			canvas.drawText("Opponent score " + scoreOpponent, 50, 150, paint);
-		// end scores
-
 		// targets nad temps
 		for (int i = targets.size() - 1; i >= 0; i--) {
 			targets.get(i).draw(canvas);
@@ -200,6 +228,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		for (int i = temps.size() - 1; i >= 0; i--) {
 			temps.get(i).draw(canvas);
 		}
+		for (int i = tempScores.size() - 1; i >= 0; i--) {
+			tempScores.get(i).draw(canvas);
+		}
+		// end targets
+
+		// scores
+		String timeleftString = String.format("Time left: %.2f",
+				timeleft / 1000.0f);
+		float textSize = scoreFillPaint.getTextSize();
+		canvas.drawText(timeleftString, 10, textSize * 1.2f, scoreFillPaint);
+		canvas.drawText(timeleftString, 10, textSize * 1.2f, scoreStrokePaint);
+
+		String scoreString = String.format("Score %d", score);
+		canvas.drawText(scoreString, 10, textSize * 2.4f, scoreFillPaint);
+		canvas.drawText(scoreString, 10, textSize * 2.4f, scoreStrokePaint);
+
+		if (activity.isMultiplayer()) {
+			String oppScoreString = String.format("Opponent score %d",
+					scoreOpponent);
+			canvas.drawText(oppScoreString, 10, textSize * 3.6f, scoreFillPaint);
+			canvas.drawText(oppScoreString, 10, textSize * 3.6f,
+					scoreStrokePaint);
+		}
+		// end scores
+
 	}
 
 	/**
@@ -313,6 +366,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		// update MX, MX (normalised screen size)
 		MX = 1.0f;
 		MY = (float) height / (float) width;
+
+		scoreFillPaint.setTextSize(width / 20.0f);
+		scoreStrokePaint.setTextSize(width / 20.0f);
+		scoreStrokePaint.setStrokeWidth(width / 500.0f);
 	}
 
 	@Override
