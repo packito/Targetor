@@ -41,4 +41,10 @@
     <string name="score">Score</string>
     <string name="accuracy">Accuracy</string>
     <string name="total">Total wins</string>
+    <string name="level_continue">"Continue - level "</string>
+    <string name="title_success">Success! - Level </string>
+    <string name="title_failure">Failure! - Level </string>
+    <string name="target_score">Target score</string>
+    <string name="high_score">High score </string>
+    <string name="new_highscore">New High Score!</string>
 </resources>

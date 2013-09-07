@@ -37,6 +37,11 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 	private TextView resume;
 	private WakeLock wakeLock;
 
+	private int level;
+	public int getLevel() {
+		return level;
+	}
+
 	private boolean multiplayer;
 	/** flag if the activity is currently resumed */
 	private boolean onTop;
@@ -58,6 +63,9 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		level = getIntent().getIntExtra(
+				TargetorApplication.TARGETOR_EXTRA_LEVEL_ID, 0);
+		Log.d("Level id", "Level id: " + level);
 		// set the views
 		setContentView(R.layout.activity_game);
 		gameView = (GameView) findViewById(R.id.game_view);
@@ -76,10 +84,14 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 
 		multiplayer = getIntent().getBooleanExtra(
 				TargetorApplication.TARGETOR_EXTRA_MULTIPLAYER, false);
-
+		
 		Display display = getWindowManager().getDefaultDisplay();
 		displayWidth = display.getWidth();
 		displayHeight = display.getHeight();
+		
+		if(!isMultiplayer()){// show lvl number in sp
+			resume.setText("Level "+level+"\n"+resume.getText().toString());
+		}
 	}
 
 	@Override
@@ -266,6 +278,7 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 		finishIntent
 				.putExtra(TargetorApplication.TARGETOR_EXTRA_MULTIPLAYER,
 						isMultiplayer())
+				.putExtra(TargetorApplication.TARGETOR_EXTRA_LEVEL_ID, level)
 				.putExtra(TargetorApplication.TARGETOR_EXTRA_SCORE,
 						gameView.score)
 				.putExtra(TargetorApplication.TARGETOR_EXTRA_TARGETS_SHOT,
@@ -327,7 +340,7 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 		public static final int MESSAGE_LENGTH = 60;
 
 		public boolean running;
-		private boolean gameIsOver=false;
+		private boolean gameIsOver = false;
 
 		public ConnectedThread(BluetoothSocket socket) {
 			this.socket = socket;
@@ -408,10 +421,11 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 							gameIsOver = true;
 							disconnect();
 							startFinishActivity();
-							
-							//empty the inStream
-							// prevents from reading leftovers when restarting game
-							while(inStream.available()>0)
+
+							// empty the inStream
+							// prevents from reading leftovers when restarting
+							// game
+							while (inStream.available() > 0)
 								inStream.read();
 							break loop;
 						case APP_PAUSED:

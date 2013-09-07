@@ -59,7 +59,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	public int scoreOpponent = 0;
 	public int targetsShotOpponent = 0;
 	public int missesOpponent = 0;
-	// public int startingTime = 60; // s
 	public long timeleft;// ms
 
 	private boolean soundOn = true;
@@ -67,6 +66,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	public final MediaPlayer music;
 	public final int SOUND_MISS, SOUND_TARGET_NORMAL, SOUND_TARGET_DIAMOND,
 			SOUND_TARGET_FLOWER;
+
+	private int targetScore;
+	/** probabilities of a target occurence */
+	private double pNormal, pDiamond, pFlower;
 
 	/**
 	 * The constructor to be called when layout activity_game.xml is inflated.
@@ -105,8 +108,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				R.drawable.target_diamond);
 		BMP_TARGET_DIAMOND_TEMP = BitmapFactory.decodeResource(getResources(),
 				R.drawable.target_diamond_temp);
-		BMP_TARGET_FLOWER=BitmapFactory.decodeResource(getResources(), R.drawable.target_flower);
-		BMP_TARGET_FLOWER_TEMP=BitmapFactory.decodeResource(getResources(), R.drawable.target_flower_temp);
+		BMP_TARGET_FLOWER = BitmapFactory.decodeResource(getResources(),
+				R.drawable.target_flower);
+		BMP_TARGET_FLOWER_TEMP = BitmapFactory.decodeResource(getResources(),
+				R.drawable.target_flower_temp);
 
 		// load the sounds
 		music = MediaPlayer.create(activity, R.raw.music_game);
@@ -120,7 +125,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		SOUND_TARGET_FLOWER = sounds
 				.load(activity, R.raw.target_flower_shot, 1);
 
-		timeleft = 60000;
+		// TODO setup time left and probabilities
+		timeleft = TargetorApplication.calcTime(activity.getLevel());
+		targetScore = TargetorApplication.calcScore(activity.getLevel());
+		pNormal = TargetorApplication.calcNormal(activity.getLevel());
+		pDiamond = TargetorApplication.calcDiamond(activity.getLevel());
+		pFlower = TargetorApplication.calcFlower(activity.getLevel());
 	}
 
 	/**
@@ -212,12 +222,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	 */
 	public void redraw(Canvas canvas) {
 		// randomly add targets TODO add target according to lvl.
-		if (rnd.nextInt(16) == 0) {
+		if (rnd.nextDouble() < pNormal)
 			addTarget(Target.TYPE_NORMAL);
-		}
-		if (rnd.nextInt(50) == 0)
+		if (rnd.nextDouble() < pDiamond)
 			addTarget(Target.TYPE_DIAMOND);
-		if (rnd.nextInt(40) == 0)
+		if (rnd.nextDouble() < pFlower)
 			addTarget(Target.TYPE_FLOWER);
 
 		canvas.drawBitmap(BMP_BG, 0, 0, null);// draw bg
@@ -233,7 +242,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 		// end targets
 
-		// scores
+		// scores TODO move to R.string
 		String timeleftString = String.format("Time left: %.2f",
 				timeleft / 1000.0f);
 		float textSize = scoreFillPaint.getTextSize();
@@ -245,10 +254,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawText(scoreString, 10, textSize * 2.4f, scoreStrokePaint);
 
 		if (activity.isMultiplayer()) {
+			// / draw opponent's score in mp
 			String oppScoreString = String.format("Opponent score %d",
 					scoreOpponent);
 			canvas.drawText(oppScoreString, 10, textSize * 3.6f, scoreFillPaint);
 			canvas.drawText(oppScoreString, 10, textSize * 3.6f,
+					scoreStrokePaint);
+		} else {
+			// / draw target score in sp
+			String targetScoreString = String.format("Target score %d",
+					targetScore);
+			canvas.drawText(targetScoreString, 10, textSize * 3.6f,
+					scoreFillPaint);
+			canvas.drawText(targetScoreString, 10, textSize * 3.6f,
 					scoreStrokePaint);
 		}
 		// end scores

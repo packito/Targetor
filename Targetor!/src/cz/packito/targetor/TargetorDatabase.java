@@ -76,6 +76,28 @@ public class TargetorDatabase {
 		return c.getCount();
 	}
 
+	/**
+	 * TODO change this to respect target scores in each level
+	 * 
+	 * @return the current level in singleplayer
+	 */
+	public int getLevel() {
+		int lvl = 1;
+		while (true) {
+			Cursor c = database.rawQuery(
+					"SELECT * FROM " + HistoryTable.TABLENAME + " WHERE "
+							+ HistoryTable.COLUMN_LEVEL_ID + "=" + lvl
+							+ " AND " + HistoryTable.COLUMN_SCORE + ">="
+							+ TargetorApplication.calcScore(lvl), null);
+			if (c == null || c.getCount() < 1
+					|| lvl == TargetorApplication.LEVELS) {
+				break;
+			} else
+				lvl++;
+		}
+		return lvl;
+	}
+
 	public int getLoses(String opponentAddress) {
 		Cursor c = database.rawQuery("SELECT * FROM " + HistoryTable.TABLENAME
 				+ " WHERE " + HistoryTable.COLUMN_OPPONENT_ADDRESS + "='"
@@ -90,6 +112,17 @@ public class TargetorDatabase {
 				"yyyy-MM-dd HH:mm:ss");
 		String crntDate = dateFormatISO8601.format(new Date());
 		return crntDate;
+	}
+
+	public int getHighScore(int lvl) {
+		int score = Integer.MIN_VALUE;
+		Cursor c = database.rawQuery("SELECT MAX(" + HistoryTable.COLUMN_SCORE
+				+ ") FROM " + HistoryTable.TABLENAME + " WHERE "
+				+ HistoryTable.COLUMN_LEVEL_ID + "=" + lvl, null);
+		if (c != null && c.moveToFirst() && !c.isNull(0)) {
+			score = c.getInt(0);
+		}
+		return score;
 	}
 
 }
