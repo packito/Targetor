@@ -75,7 +75,6 @@ public class BTFindActivity extends Activity implements OnItemClickListener {
 				newDevicesList.setAdapter(newDevicesAdapter);
 			}
 		}
-
 	}
 
 	@Override
