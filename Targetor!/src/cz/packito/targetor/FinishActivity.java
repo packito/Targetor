@@ -131,9 +131,9 @@ public class FinishActivity extends Activity {
 			table.addView(trScore);
 
 			TableRow trTargetScore = new TableRow(this);
-			trScore.setGravity(Gravity.CENTER);
-			trScore.addView(tv(R.string.target_score));
-			trScore.addView(tv(Integer.toString(TargetorApplication
+			trTargetScore.setGravity(Gravity.CENTER);
+			trTargetScore.addView(tv(R.string.target_score));
+			trTargetScore.addView(tv(Integer.toString(TargetorApplication
 					.calcScore(levelId))));
 			table.addView(trTargetScore);
 
@@ -146,8 +146,11 @@ public class FinishActivity extends Activity {
 			TableRow trAccuracy = new TableRow(this);
 			trAccuracy.setGravity(Gravity.CENTER);
 			trAccuracy.addView(tv(R.string.accuracy));
-			String acc = String.format("%.1f%%", (100.0 * targetsShot)
-					/ (targetsShot + misses));
+			double accuracy=(100.0 * targetsShot)
+					/ (targetsShot + misses);
+			if(accuracy==Double.NaN)
+				accuracy=0.0;
+			String acc = String.format("%.1f%%", accuracy);
 			trAccuracy.addView(tv(acc));
 			table.addView(trAccuracy);
 

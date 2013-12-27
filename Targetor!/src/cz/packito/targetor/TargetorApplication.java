@@ -97,7 +97,7 @@ public class TargetorApplication extends Application {
 	 */
 	public static double calcNormal(int lvl) {
 		if (lvl == 0)
-			return 0.12;
+			return 0.02;
 		else
 			return 1.0 / 12.0 + lvl * lvl / 2500.0;
 	}
@@ -105,7 +105,7 @@ public class TargetorApplication extends Application {
 	/** @see #calcNormal(int) */
 	public static double calcDiamond(int lvl) {
 		if (lvl == 0)
-			return 0.02;
+			return 0.002;
 		else
 			return (lvl - 3.0) / 200.0;
 	}
@@ -113,7 +113,7 @@ public class TargetorApplication extends Application {
 	/** @see #calcNormal(int) */
 	public static double calcFlower(int lvl) {
 		if (lvl == 0)
-			return 0.03;
+			return 0.005;
 		else
 			return Math.pow(lvl, 1.5) / 600.0;
 	}

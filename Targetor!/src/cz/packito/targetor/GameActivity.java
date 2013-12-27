@@ -150,6 +150,7 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 	public void pauseGame() {
 		gameView.stopThread();
 		pauseScreen.setVisibility(View.VISIBLE);
+		gameView.setVisibility(View.GONE);
 		if (isMultiplayer() && connectedThread != null) {
 			sendGamePaused();
 		}
@@ -167,7 +168,8 @@ public class GameActivity extends Activity implements OnCheckedChangeListener {
 			// block from resuming if opponent just paused
 			if (!opponentPausedOneSecondAgoDamnThisIsALongVariablename) {
 				// resume the game
-				pauseScreen.setVisibility(View.INVISIBLE);
+				pauseScreen.setVisibility(View.GONE);
+				gameView.setVisibility(View.VISIBLE);
 				resume.setText(R.string.touch_to_resume);
 				gameView.startThread();
 				if (isMultiplayer()) {
