@@ -125,7 +125,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		SOUND_TARGET_FLOWER = sounds
 				.load(activity, R.raw.target_flower_shot, 1);
 
-		// TODO setup time left and probabilities
+		// setup time left and probabilities
 		timeleft = TargetorApplication.calcTime(activity.getLevel());
 		targetScore = TargetorApplication.calcScore(activity.getLevel());
 		pNormal = TargetorApplication.calcNormal(activity.getLevel());

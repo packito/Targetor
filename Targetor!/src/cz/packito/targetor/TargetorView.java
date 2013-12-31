@@ -16,8 +16,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class TargetorView extends SurfaceView implements SurfaceHolder.Callback {
-	
-	private static final String TAG= "TargetorView";
+
+	private static final String TAG = "TargetorView";
 
 	// Content
 	private ArrayList<TButton> buttonsMenu;
@@ -28,7 +28,7 @@ public class TargetorView extends SurfaceView implements SurfaceHolder.Callback 
 	public static final int STATE_BTMENU = 2;
 	public static final int STATE_GAME = 3;
 	public static final int STATE_GAME_PAUSED = 4;
-	
+
 	private int state = STATE_LOADING;
 
 	// Android stuff
@@ -42,7 +42,6 @@ public class TargetorView extends SurfaceView implements SurfaceHolder.Callback 
 
 	// preferences
 	boolean soundOn = true;
-	
 
 	public TargetorView(TargetorActivity act) {
 		super(act);
@@ -50,23 +49,23 @@ public class TargetorView extends SurfaceView implements SurfaceHolder.Callback 
 		res = getResources();
 		holder = getHolder();
 		holder.addCallback(this);
-		
 
 		setState(STATE_LOADING);
-		
-		//get screen size
+
+		// get screen size
 		DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		
+
 		final int width = metrics.widthPixels;
 		final int height = metrics.heightPixels;
-		
+
 		Thread loadingThread = new Thread() {
 
 			@Override
 			public void run() {
-				// Load Menu Buttons
-				Bitmap logoBmp=BitmapFactory.decodeResource(res, R.drawable.menu_logo);
+				// Load Menu Button bitmaps
+				Bitmap logoBmp = BitmapFactory.decodeResource(res,
+						R.drawable.menu_logo);
 				Bitmap quitBmp = BitmapFactory.decodeResource(res,
 						R.drawable.quit);
 				Bitmap exitBmp = BitmapFactory.decodeResource(res,
@@ -93,7 +92,7 @@ public class TargetorView extends SurfaceView implements SurfaceHolder.Callback 
 						// Does nothing, just image
 					}
 				});
-				
+
 				// Quit button
 				buttonsMenu.add(new TButton(width, height, quitBmp, exitBmp,
 						TButton.SIZE_BUTTON, TButton.MIN, TButton.MIN) {
@@ -108,7 +107,7 @@ public class TargetorView extends SurfaceView implements SurfaceHolder.Callback 
 						TButton.SIZE_BUTTON, TButton.MAX, TButton.MAX) {
 					@Override
 					public void onClick() {
-						// TODO 
+						// TODO
 					}
 				});
 
@@ -125,7 +124,7 @@ public class TargetorView extends SurfaceView implements SurfaceHolder.Callback 
 				// load sound prefs
 				soundOn = activity.preferences.getBoolean(
 						TargetorApplication.TARGETOR_KEY_SOUND_ON, true);
-				
+
 				// Sound toggle
 				buttonsMenu.add(new TToggle(soundOn, width, height,
 						soundOffBmp, soundOnBmp, TButton.SIZE_BUTTON,
@@ -137,13 +136,38 @@ public class TargetorView extends SurfaceView implements SurfaceHolder.Callback 
 							startMusic();
 						else
 							stopMusic();
-						SharedPreferences.Editor editor= activity.preferences.edit();
-						editor.putBoolean(TargetorActivity.TARGETOR_KEY_SOUND_ON, soundOn);
+						SharedPreferences.Editor editor = activity.preferences
+								.edit();
+						editor.putBoolean(
+								TargetorActivity.TARGETOR_KEY_SOUND_ON, soundOn);
 						editor.commit();
 					}
 				});
-				// End menu buttons
 
+				// start Singleplayer button
+				buttonsMenu.add(new TButton(width, height, res
+						.getString(R.string.singleplayer), 0.4f, 0.25f,
+						TButton.CENTER, 0.4f) {
+
+					@Override
+					public void onClick() {
+						// TODO start simgleplayer game
+					}
+				});
+
+				// start Multiplayer button
+				buttonsMenu.add(new TButton(width, height, res
+						.getString(R.string.multiplayer), 0.4f, 0.25f,
+						TButton.CENTER, 0.8f) {
+
+					@Override
+					public void onClick() {
+						// TODO start multiplayer game
+
+					}
+				});
+
+				// End menu buttons
 
 				setState(STATE_MENU);
 				if (soundOn) {
@@ -157,8 +181,9 @@ public class TargetorView extends SurfaceView implements SurfaceHolder.Callback 
 
 	public void redraw() {
 
-		while(!holder.getSurface().isValid());
-		
+		while (!holder.getSurface().isValid())
+			;
+
 		Canvas canvas = holder.lockCanvas();
 
 		switch (state) {
