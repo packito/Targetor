@@ -14,7 +14,7 @@
     <string name="search_devices">Search for devices</string>
     <string name="bluetooth_not_supported">Your device doesn\'t support Bluetooth!</string>
     <string name="cant_play_no_bt">Can\'t play multiplayer with Bluetooth disabled!</string>
-    <string name="searching">Searching… make sure the other device is discoverable!</string>
+    <string name="searching">Searching…</string>
     <string name="connected_to">Connected to</string>
     <string name="connecting_to">Connecting to</string>
     <string name="cant_connect">Can\'t connect</string>
@@ -23,7 +23,7 @@
     <string name="touch_to_start">Touch to start game</string>
     <string name="touch_to_resume">Touch to resume</string>
     <string name="bt_help_title">Bluetooth help</string>
-    <string name="bt_help_message">To start a game, click on the device you want to play with.\n\nIf the devices have already been paired, you should see the other one in the left list.\n\nIf the devices are not paired yet, you have to make one of the devices discoverable, and start searching with the other one. After finding, the new device will appear in the list on the right. After clicking it, the devices will automtically be paired and the game starts. </string>
+    <string name="bt_help_message">Your Bluetooth name is: %s\nTo start a game, click on the device you want to play with.\n\nIf you can\'t see the device, make the other device discoverable by clicking the "make discoverable" button on it, and find it by clicking "search for devices". Its name should appear here in a couple of seconds.</string>
     <string name="time_up">Time\'s up!</string>
     <string name="your_score">"Your score: "</string>
     <string name="win">You won!</string>
@@ -47,4 +47,7 @@
     <string name="target_score">Target score</string>
     <string name="high_score">High score </string>
     <string name="new_highscore">New High Score!</string>
+    <string name="timeleft">Time left: %.2f</string>
+    <string name="level_choose">Choose your level</string>
+    <string name="loading">Loading…</string>
 </resources>

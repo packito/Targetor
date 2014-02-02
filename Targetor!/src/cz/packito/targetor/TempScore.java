@@ -9,7 +9,7 @@ import android.graphics.Paint.Style;
 
 public class TempScore {
 
-	private final GameView gameView;
+	private final TargetorView gameView;
 	private final String scoreString;
 	private final Paint fillPaint, strokePaint;
 
@@ -31,7 +31,7 @@ public class TempScore {
 	 * @param score
 	 *            The score to be drawn
 	 */
-	public TempScore(GameView gameView, float x, float y, int score) {
+	public TempScore(TargetorView gameView, float x, float y, int score) {
 		this.gameView = gameView;
 		this.x = x;
 		this.y = y;
@@ -40,7 +40,7 @@ public class TempScore {
 		step=gameView.getHeight()/150.0f;
 		
 		fillPaint = new Paint();
-		fillPaint.setTypeface(gameView.TYPEFACE);
+		fillPaint.setTypeface(TargetorActivity.getTypeface());
 		fillPaint.setTextSize(gameView.getWidth() / 16.0f);
 		fillPaint.setColor(score < 0 ? Color.RED : Color.BLUE);
 		

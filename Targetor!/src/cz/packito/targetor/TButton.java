@@ -1,5 +1,6 @@
 package cz.packito.targetor;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,11 +19,32 @@ public abstract class TButton {
 	protected final Bitmap bmpPressed;
 	protected final Rect srcRect;
 	protected final Rect dstRect;
-	protected final String text;
+	protected String text;
+
+	/**
+	 * {@link TButton} can hold some data, for instance integer of the level, or
+	 * {@link BluetoothDevice}
+	 */
+	public final Object data;
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
 	private final int type;
 	private final Paint textPaint;
 	private final int screenWidth;
 	private boolean pressed = false;
+	private boolean border;
+	private boolean clickable = true;
+
+	public void setClickable(boolean clickable) {
+		this.clickable = clickable;
+	}
 
 	// button types
 	private static final int TYPE_IMAGE = 1;
@@ -50,6 +72,11 @@ public abstract class TButton {
 	 */
 	public TButton(int sWidth, int sHeight, Bitmap bmp, Bitmap bmpPressed,
 			float size, float hpos, float vpos) {
+		this(null, sWidth, sHeight, bmp, bmpPressed, size, hpos, vpos);
+	}
+	public TButton(Object data, int sWidth, int sHeight, Bitmap bmp,
+			Bitmap bmpPressed, float size, float hpos, float vpos) {
+		this.data = data;
 		this.bmp = bmp;
 		this.bmpPressed = bmpPressed;
 		this.type = TYPE_IMAGE;
@@ -81,12 +108,19 @@ public abstract class TButton {
 	 * @param hpos
 	 * @param vpos
 	 */
+
 	public TButton(int sWidth, int sHeight, String text, float hsize,
-			float vsize, float hpos, float vpos) {
+			float vsize, float hpos, float vpos, boolean border) {
+		this(null, sWidth, sHeight, text, hsize, vsize, hpos, vpos, border);
+	}
+	public TButton(Object data, int sWidth, int sHeight, String text,
+			float hsize, float vsize, float hpos, float vpos, boolean border) {
+		this.data = data;
 		this.bmp = null;
 		this.bmpPressed = null;
 		this.type = TYPE_TEXT;
 		this.text = text;
+		this.border = border;
 
 		srcRect = null;
 		screenWidth = sWidth;
@@ -122,11 +156,19 @@ public abstract class TButton {
 				* (sHeight - height)));
 	}
 
+
 	public void drawOn(Canvas canvas) {
 		switch (type) {
 		case TYPE_IMAGE:
-			canvas.drawBitmap(pressed ? bmpPressed : bmp, srcRect, dstRect,
-					null);
+			if (clickable) { // opaque if clickable
+				canvas.drawBitmap(pressed ? bmpPressed : bmp, srcRect, dstRect,
+						null);
+			} else {
+				Paint imgPaint = new Paint();
+				imgPaint.setAlpha(50);
+				canvas.drawBitmap(pressed ? bmpPressed : bmp, srcRect, dstRect,
+						imgPaint);
+			}
 			break;
 		case TYPE_TEXT:
 			Paint rectPaint = new Paint();
@@ -134,7 +176,12 @@ public abstract class TButton {
 			rectPaint.setStrokeWidth(0.01f * screenWidth);
 			rectPaint.setColor(Color.BLACK);
 			rectPaint.setStyle(Paint.Style.STROKE);
-
+			if (clickable) {
+				textPaint.setAlpha(255);
+			} else {
+				textPaint.setAlpha(50);
+				rectPaint.setAlpha(50);
+			}
 			Rect bounds = new Rect();
 			textPaint.getTextBounds(text, 0, text.length(), bounds);
 
@@ -146,8 +193,9 @@ public abstract class TButton {
 				rectPaint.setMaskFilter(new BlurMaskFilter(
 						0.012f * screenWidth, BlurMaskFilter.Blur.NORMAL));
 
-				canvas.drawRoundRect(new RectF(dstRect), 0.05f * screenWidth,
-						0.05f * screenWidth, rectPaint);
+				if (border)
+					canvas.drawRoundRect(new RectF(dstRect),
+							0.05f * screenWidth, 0.05f * screenWidth, rectPaint);
 				canvas.drawText(text, dstRect.exactCenterX(), dstRect.bottom
 						- ((dstRect.height() - bounds.height()) / 2), textPaint);
 
@@ -157,8 +205,9 @@ public abstract class TButton {
 				rectPaint.setMaskFilter(null);
 			}
 
-			canvas.drawRoundRect(new RectF(dstRect), 0.05f * screenWidth,
-					0.05f * screenWidth, rectPaint);
+			if (border)
+				canvas.drawRoundRect(new RectF(dstRect), 0.05f * screenWidth,
+						0.05f * screenWidth, rectPaint);
 			canvas.drawText(text, dstRect.exactCenterX(), dstRect.bottom
 					- ((dstRect.height() - bounds.height()) / 2), textPaint);
 			break;
@@ -166,7 +215,8 @@ public abstract class TButton {
 	}
 
 	public void press() {
-		pressed = true;
+		if (clickable)
+			pressed = true;
 	}
 
 	public void release() {

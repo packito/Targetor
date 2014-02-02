@@ -13,11 +13,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
 public class TargetorActivity extends Activity {
@@ -27,6 +29,8 @@ public class TargetorActivity extends Activity {
 	private TargetorView theView;
 
 	public SharedPreferences preferences;
+
+	private boolean onTop;
 
 	public static final String TARGETOR_KEY_SOUND_ON = "sound_on";
 	public static final String SHARED_PREFERENCES = "TargetorPreferences";
@@ -40,7 +44,12 @@ public class TargetorActivity extends Activity {
 		preferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
 		TYPEFACE = Typeface.createFromAsset(getAssets(), "zekton__.ttf");
 
-		theView = new TargetorView(this);
+		// get screen size
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+		theView = new TargetorView(this, metrics.widthPixels,
+				metrics.heightPixels);
 		theView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT));
 		setContentView(theView);
@@ -49,14 +58,30 @@ public class TargetorActivity extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		if (theView.soundOn)
-			theView.startMusic();
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		onTop=true;
+		theView.onResume();
+	}
+	@Override
+	protected void onPause() {
+		onTop=false;
+		theView.onPause();
+		super.onPause();
+	}
+	
+	@Override
 	protected void onStop() {
-		theView.stopMusic();
+		theView.onStop();
 		super.onStop();
+	}
+
+	@Override
+	public void onBackPressed() {
+		theView.onBackPressed();
 	}
 
 	public static Typeface getTypeface() {
@@ -65,5 +90,9 @@ public class TargetorActivity extends Activity {
 			return Typeface.DEFAULT;
 		} else
 			return TYPEFACE;
+	}
+
+	public boolean isOnTop() {
+		return onTop;
 	}
 }

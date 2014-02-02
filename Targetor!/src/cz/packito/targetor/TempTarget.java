@@ -6,7 +6,7 @@ import android.graphics.Rect;
 
 public class TempTarget {
 
-	private GameView gameView;
+	private TargetorView gameView;
 	private final Rect dstRect;
 	private final Bitmap bmp;
 	private final int bmpHeight;
@@ -22,7 +22,7 @@ public class TempTarget {
 	 * @param tempBmp
 	 *            The bitmap. The animation will go by squares left to right
 	 */
-	public TempTarget(GameView gameView, Rect dstRect, Bitmap tempBmp) {
+	public TempTarget(TargetorView gameView, Rect dstRect, Bitmap tempBmp) {
 		this.gameView = gameView;
 		this.dstRect = dstRect;
 		this.bmp = tempBmp;

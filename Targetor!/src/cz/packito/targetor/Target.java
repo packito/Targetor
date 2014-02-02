@@ -20,7 +20,7 @@ public class Target {
 	public static final int TYPE_DIAMOND = 2;
 	public static final int TYPE_FLOWER = 3;
 
-	private final GameView gameView;
+	private final TargetorView gameView;
 	private final Bitmap bmp, tempBmp;
 	private final int SOUND_ID;
 	private final Rect srcRect;
@@ -50,7 +50,7 @@ public class Target {
 	 * @param d
 	 */
 
-	public Target(GameView gameView, int type, int id, float x, float y,
+	public Target(TargetorView gameView, int type, int id, float x, float y,
 			float v, double d) {
 		this.gameView = gameView;
 		this.x = x;
@@ -104,7 +104,7 @@ public class Target {
 	 * @param gameView
 	 * @param type
 	 */
-	public Target(GameView gameView, int type) {
+	public Target(TargetorView gameView, int type) {
 		this(gameView, type,
 				gameView.idGenerator += (int) (Math.random() * 1000000) + 1, 0,
 				0, 0, 0);
@@ -133,9 +133,9 @@ public class Target {
 			d = rnd.nextDouble() * Math.PI / 2 + Math.PI * 3 / 4;
 		}
 
-		if (gameView.activity.isMultiplayer()) {
-			gameView.activity.sendNewTarget(type, id, x, y, v, d);
-		}
+		 if (gameView.multiplayer) {
+		 gameView.sendNewTarget(type, id, x, y, v, d);
+		 }
 	}
 
 	/** Move the target */
@@ -155,10 +155,10 @@ public class Target {
 	 * {@linkplain TempTarget}
 	 */
 	private Rect dstRect() {
-		int left = (int) ((x - r) * gameView.getWidth());
-		int top = (int) ((y - r) * gameView.getWidth());
-		int right = (int) ((x + r) * gameView.getWidth());
-		int bottom = (int) ((y + r) * gameView.getWidth());
+		int left = (int) ((x - r) * gameView.width);
+		int top = (int) ((y - r) * gameView.width);
+		int right = (int) ((x + r) * gameView.width);
+		int bottom = (int) ((y + r) * gameView.width);
 		return new Rect(left, top, right, bottom);
 	}
 
@@ -188,8 +188,8 @@ public class Target {
 		TempTarget temp = new TempTarget(gameView, dstRect(), tempBmp);
 		gameView.temps.add(temp);
 		gameView.targetsShot++;
-		if (gameView.activity.isMultiplayer())
-			gameView.activity.sendTargetShot(id);
+		 if (gameView.multiplayer)
+		 gameView.sendTargetShot(id);
 		return value;
 	}
 
